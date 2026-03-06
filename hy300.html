@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⚡ YG-300 · WEB CONNECT ⚡</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+        
+        /* ОСНОВНОЙ ИНТЕРФЕЙС */
+        #mainPage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        /* 2D АДРЕСНАЯ КАМЕРА */
+        #addressCamera {
+            width: 100%;
+            height: 40vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0,0,0,0.8);
+            border: 3px solid #ff00ff;
+            border-radius: 20px;
+            padding: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 50px #ff00ff;
+        }
+        
+        #mainCameraCanvas {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #00ffff;
+            border-radius: 12px;
+            background: #0a0a1a;
+            display: block;
+        }
+        
+        /* ПАНЕЛЬ УПРАВЛЕНИЯ */
+        .controls-container {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+        
+        /* ОСНОВНЫЕ КНОПКИ */
+        .media-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: rgba(0,0,0,0.9);
+            padding: 12px;
+            border-radius: 30px;
+            border: 2px solid #00ffff;
+        }
+        
+        .media-btn {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #00ffff;
+            padding: 12px 8px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .media-btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        .media-btn.audio {
+            border-color: #ffff00;
+        }
+        
+        .media-btn.audio:hover {
+            background: #ffff00;
+            color: #000;
+            box-shadow: 0 0 20px #ffff00;
+        }
+        
+        /* СПЕЦИАЛЬНАЯ ПАНЕЛЬ */
+        #yg300Panel {
+            background: rgba(50,0,50,0.9);
+            border: 3px solid #ff00ff;
+            border-radius: 20px;
+            padding: 12px;
+            margin: 10px 0;
+            box-shadow: 0 0 30px #ff00ff;
+        }
+        
+        .panel-title {
+            color: #ffff00;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #ffff00;
+        }
+        
+        .preset-btn {
+            background: #ff00ff;
+            color: #000;
+            border: none;
+            padding: 15px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0 0 30px #ff00ff;
+        }
+        
+        .slider-group {
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            color: #00ffff;
+            margin-bottom: 5px;
+        }
+        
+        input[type=range] {
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            -webkit-appearance: none;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ff00ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+        
+        .grid-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .action-btn {
+            background: #00ffff;
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* КНОПКА 3D */
+        #navTo3D {
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid #ff00ff;
+            border-radius: 50%;
+            color: #ff00ff;
+            font-size: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 80px #ff00ff;
+            margin: 10px auto;
+        }
+        
+        #navTo3D span {
+            font-size: 14px;
+        }
+        
+        /* 3D СЦЕНА */
+        #studio3D {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 100;
+            background: #000;
+            display: none;
+        }
+        
+        #studio3D.active {
+            display: block;
+        }
+        
+        #mainCanvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        
+        #backToMain {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid #00ffff;
+            border-radius: 50%;
+            color: #00ffff;
+            font-size: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 0 0 40px #00ffff;
+        }
+        
+        .hidden-input {
+            display: none;
+        }
+        
+        #stats {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            color: #ffff00;
+            font-family: monospace;
+            font-size: 12px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #ffff00;
+            z-index: 1000;
+        }
+        
+        .mode-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: #00ffff;
+            font-size: 12px;
+            z-index: 1001;
+        }
+
+        .web-led {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .web-led.usb { background: #ff5555; }
+        .web-led.bt { background: #5555ff; }
+        .web-led.printer { background: #ffff55; }
+        .web-led.web { background: #55ff55; }
+    </style>
+</head>
+<body>
+    <!-- ОСНОВНОЙ ЭКРАН -->
+    <div id="mainPage">
+        <!-- 2D АДРЕСНАЯ КАМЕРА -->
+        <div id="addressCamera">
+            <canvas id="mainCameraCanvas" width="1920" height="1080"></canvas>
+        </div>
+        
+        <div class="controls-container">
+            <!-- КНОПКИ ЗАГРУЗКИ -->
+            <div class="media-controls">
+                <button class="media-btn" id="photoBtn">📷 ФОТО</button>
+                <button class="media-btn" id="videoBtn">📹 ВИДЕО</button>
+                <button class="media-btn audio" id="audioBtn">🎵 АУДИО</button>
+                <button class="media-btn" id="playBtn">▶ PLAY</button>
+                <button class="media-btn" id="pauseBtn">⏸ PAUSE</button>
+                <button class="media-btn" id="stopBtn">⏹ STOP</button>
+            </div>
+            
+            <!-- ПАНЕЛЬ YG-300 -->
+            <div id="yg300Panel">
+                <div class="panel-title">⚡ YG-300 WEB CONNECT ⚡</div>
+                
+                <!-- ВЕБ-КОННЕКТ КНОПКИ -->
+                <div class="grid-btns">
+                    <button class="action-btn" id="usbBtn" style="background: #ff5555;">🔌 USB</button>
+                    <button class="action-btn" id="btBtn" style="background: #5555ff;">📱 BT</button>
+                    <button class="action-btn" id="printerBtn" style="background: #ffff55; color: #000;">🖨️ PRN</button>
+                    <button class="action-btn" id="scanBtn">📡 СКАН</button>
+                </div>
+                
+                <!-- СТАТУС ПОДКЛЮЧЕНИЙ -->
+                <div style="display: flex; justify-content: space-around; margin-bottom: 15px; padding: 5px; background: rgba(0,0,0,0.5); border-radius: 20px;">
+                    <span><span class="web-led usb" id="usbLed"></span> USB</span>
+                    <span><span class="web-led bt" id="btLed"></span> BT</span>
+                    <span><span class="web-led printer" id="printerLed"></span> PRN</span>
+                    <span><span class="web-led web" id="webLed"></span> WEB</span>
+                </div>
+                
+                <!-- КНОПКА ПРЕСЕТА -->
+                <button class="preset-btn" id="yg300Preset">🔥 WEB-СИНХРОНИЗАЦИЯ 🔥</button>
+                
+                <!-- РЕЖИМЫ РАБОТЫ -->
+                <div class="grid-btns">
+                    <button class="action-btn" id="mode1proj">📽 1 ПРОЕКТОР</button>
+                    <button class="action-btn" id="mode2proj">🎬 2 ПРОЕКТОРА (3D)</button>
+                </div>
+                
+                <!-- КАЛИБРОВКА ЦВЕТА -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>🔴 КРАСНЫЙ</span>
+                        <span id="redVal">150%</span>
+                    </div>
+                    <input type="range" id="redSlider" min="50" max="300" value="150">
+                    
+                    <div class="slider-label">
+                        <span>🟢 ЗЕЛЁНЫЙ</span>
+                        <span id="greenVal">100%</span>
+                    </div>
+                    <input type="range" id="greenSlider" min="50" max="300" value="100">
+                    
+                    <div class="slider-label">
+                        <span>🔵 СИНИЙ</span>
+                        <span id="blueVal">180%</span>
+                    </div>
+                    <input type="range" id="blueSlider" min="50" max="300" value="180">
+                </div>
+                
+                <!-- РАЗМЕР ЧАСТИЦ -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>✨ РАЗМЕР ЧАСТИЦ</span>
+                        <span id="sizeVal">8.0</span>
+                    </div>
+                    <input type="range" id="sizeSlider" min="2" max="20" value="8" step="0.5">
+                </div>
+                
+                <!-- ЧАСТОТА ПОЛЯ -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>🌊 ЧАСТОТА ПОЛЯ (Гц)</span>
+                        <span id="freqVal">60.0</span>
+                    </div>
+                    <input type="range" id="freqSlider" min="30" max="240" value="60" step="0.1">
+                </div>
+                
+                <!-- ФАЗА -->
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>⚡ ФАЗА (СДВИГ)</span>
+                        <span id="phaseVal">0°</span>
+                    </div>
+                    <input type="range" id="phaseSlider" min="-180" max="180" value="0" step="1">
+                </div>
+                
+                <!-- СИНХРОНИЗАЦИЯ -->
+                <div class="slider-group" id="syncGroup">
+                    <div class="slider-label">
+                        <span>⏱ СДВИГ (мс)</span>
+                        <span id="delayVal">0</span>
+                    </div>
+                    <input type="range" id="delaySlider" min="-100" max="100" value="0">
+                </div>
+                
+                <!-- ТЕСТОВЫЕ КНОПКИ -->
+                <div class="grid-btns">
+                    <button class="action-btn" id="testGrid">🔲 ТЕСТОВАЯ СЕТКА</button>
+                    <button class="action-btn" id="testColors">🌈 ТЕСТ ЦВЕТОВ</button>
+                    <button class="action-btn" id="syncBtn">🔄 СИНХР</button>
+                    <button class="action-btn" id="resetBtn">✖️ СБРОС</button>
+                </div>
+                
+                <!-- СТАТУС -->
+                <div style="text-align: center; margin-top: 10px; color: #ffff00;" id="ygStatus">
+                    ⚡ WEB CONNECT: ОЖИДАНИЕ ⚡
+                </div>
+            </div>
+            
+            <!-- КНОПКА 3D -->
+            <div id="navTo3D">
+                🎬
+                <span>3D</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 3D СЦЕНА -->
+    <div id="studio3D">
+        <canvas id="mainCanvas"></canvas>
+        <div id="backToMain">
+            ◀
+            <span>НАЗАД</span>
+        </div>
+    </div>
+    
+    <!-- СТАТИСТИКА -->
+    <div id="stats">⚡ YG-300 · 300k ЧАСТИЦ · WEB CONNECT ⚡</div>
+    <div class="mode-indicator" id="modeIndicator">📽 РЕЖИМ 1П: ОРИГИНАЛ</div>
+    
+    <!-- СКРЫТЫЕ ИНПУТЫ -->
+    <input type="file" id="photoInput" class="hidden-input" accept="image/*">
+    <input type="file" id="videoInput" class="hidden-input" accept="video/*">
+    <input type="file" id="audioInput" class="hidden-input" accept="audio/*">
+    
+    <!-- БИБЛИОТЕКИ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <script>
+        (function() {
+            // ==================== КОНФИГ ====================
+            const MAX_PARTICLES = 300000;
+            const ZONE_WIDTH = 1200;
+            const ZONE_HEIGHT = 720;
+            const X_SCALE = 38;
+            const Z_SCALE = 19;
+            
+            // ==================== ЭЛЕМЕНТЫ ====================
+            const mainCanvas = document.getElementById('mainCanvas');
+            const mainCameraCanvas = document.getElementById('mainCameraCanvas');
+            const mainCtx = mainCameraCanvas.getContext('2d');
+            const mainPage = document.getElementById('mainPage');
+            const studio3D = document.getElementById('studio3D');
+            const navTo3D = document.getElementById('navTo3D');
+            const backToMain = document.getElementById('backToMain');
+            const statsDiv = document.getElementById('stats');
+            const modeIndicator = document.getElementById('modeIndicator');
+            const ygStatus = document.getElementById('ygStatus');
+            
+            // ==================== СОСТОЯНИЕ ====================
+            const state = {
+                videoActive: false,
+                audioActive: false,
+                projectorMode: '1proj',
+                ygMode: false,
+                redBoost: 1.5,
+                greenBoost: 1.0,
+                blueBoost: 1.8,
+                particleSize: 8.0,
+                syncDelay: 0,
+                testMode: 'none',
+                
+                // WEB CONNECT
+                frequency: 60.0,
+                phase: 0,
+                usbConnected: false,
+                btConnected: false,
+                printerConnected: false,
+                activeSource: null
+            };
+            
+            // ==================== ВИДЕО ====================
+            const video = document.createElement('video');
+            video.crossOrigin = 'anonymous';
+            video.loop = true;
+            video.muted = false;
+            video.playsInline = true;
+            
+            const videoTexture = new THREE.VideoTexture(video);
+            videoTexture.minFilter = THREE.LinearFilter;
+            videoTexture.magFilter = THREE.LinearFilter;
+            
+            // ==================== THREE.JS ====================
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+            
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(45, 25, 100);
+            
+            const renderer = new THREE.WebGLRenderer({ 
+                canvas: mainCanvas, 
+                preserveDrawingBuffer: true, 
+                antialias: false
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(1);
+            
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.15;
+            controls.target.set(0, 8, 0);
+            
+            // ==================== ГЕНЕРАЦИЯ ЧАСТИЦ ====================
+            console.log(`⚡ Генерация ${MAX_PARTICLES} частиц...`);
+            
+            const rxArray = new Float32Array(MAX_PARTICLES);
+            const ryArray = new Float32Array(MAX_PARTICLES);
+            const positions = new Float32Array(MAX_PARTICLES * 3);
+            
+            for (let i = 0; i < MAX_PARTICLES; i++) {
+                const rx = (Math.random() - 0.5) * ZONE_WIDTH;
+                const ry = (Math.random() - 0.5) * ZONE_HEIGHT;
+                
+                rxArray[i] = rx;
+                ryArray[i] = ry;
+                
+                const i3 = i * 3;
+                positions[i3] = rx / X_SCALE;
+                positions[i3 + 1] = 0;
+                positions[i3 + 2] = ry / Z_SCALE;
+            }
+            
+            // ==================== ШЕЙДЕРЫ ====================
+            const vertexShader = `
+                attribute float rx;
+                attribute float ry;
+                
+                varying vec2 vUv;
+                uniform float particleSize;
+                uniform float time;
+                uniform float frequency;
+                uniform float phase;
+                
+                void main() {
+                    vUv = vec2((rx / 1200.0) + 0.5, 1.0 - ((ry / 720.0) + 0.5));
+                    
+                    // РИТМ ВЛИЯЕТ ТОЛЬКО НА РАЗМЕР, НО НЕ НА ПОЗИЦИЮ!
+                    float pulse = sin(time * frequency * 0.2 + phase) * 1.5;
+                    
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    gl_Position = projectionMatrix * mvPosition;
+                    
+                    // РАЗМЕР ПУЛЬСИРУЕТ, ЛАНДШАФТ СТОИТ НА МЕСТЕ
+                    gl_PointSize = particleSize + pulse;
+                }
+            `;
+            
+            const fragmentShader = `
+                uniform sampler2D videoTexture;
+                uniform float redBoost;
+                uniform float greenBoost;
+                uniform float blueBoost;
+                uniform bool testGrid;
+                uniform bool testColors;
+                uniform float time;
+                uniform bool usbActive;
+                uniform bool btActive;
+                uniform bool printerActive;
+                varying vec2 vUv;
+                
+                void main() {
+                    vec4 color;
+                    
+                    if (testGrid) {
+                        float gridX = step(0.95, fract(vUv.x * 10.0));
+                        float gridY = step(0.95, fract(vUv.y * 10.0));
+                        float centerX = step(0.98, abs(vUv.x - 0.5));
+                        float centerY = step(0.98, abs(vUv.y - 0.5));
+                        
+                        if (centerX > 0.5 || centerY > 0.5) {
+                            color = vec4(1.0, 0.0, 1.0, 1.0);
+                        } else if (gridX > 0.5 || gridY > 0.5) {
+                            color = vec4(0.0, 1.0, 1.0, 1.0);
+                        } else {
+                            discard;
+                        }
+                    } else if (testColors) {
+                        if (vUv.x < 0.33) {
+                            color = vec4(1.0, 0.0, 0.0, 1.0);
+                        } else if (vUv.x < 0.66) {
+                            color = vec4(0.0, 1.0, 0.0, 1.0);
+                        } else {
+                            color = vec4(0.0, 0.0, 1.0, 1.0);
+                        }
+                    } else {
+                        color = texture2D(videoTexture, vUv);
+                        
+                        // УСИЛЕНИЕ ЦВЕТА
+                        color.r *= redBoost;
+                        color.g *= greenBoost;
+                        color.b *= blueBoost;
+                        
+                        // ПОДСВЕТКА АКТИВНЫХ МОДУЛЕЙ
+                        if (usbActive) {
+                            color.r *= 1.3;
+                        }
+                        if (btActive) {
+                            color.b *= 1.3;
+                        }
+                        if (printerActive) {
+                            color.g *= 1.3;
+                        }
+                        
+                        if (color.r + color.g + color.b < 0.01) {
+                            discard;
+                        }
+                    }
+                    
+                    vec2 center = gl_PointCoord - 0.5;
+                    if (dot(center, center) > 0.25) discard;
+                    
+                    gl_FragColor = color;
+                }
+            `;
+            
+            const shaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                uniforms: {
+                    videoTexture: { value: videoTexture },
+                    redBoost: { value: state.redBoost },
+                    greenBoost: { value: state.greenBoost },
+                    blueBoost: { value: state.blueBoost },
+                    particleSize: { value: state.particleSize },
+                    testGrid: { value: false },
+                    testColors: { value: false },
+                    time: { value: 0 },
+                    frequency: { value: state.frequency },
+                    phase: { value: state.phase },
+                    usbActive: { value: false },
+                    btActive: { value: false },
+                    printerActive: { value: false }
+                },
+                transparent: false
+            });
+            
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('rx', new THREE.BufferAttribute(rxArray, 1));
+            geometry.setAttribute('ry', new THREE.BufferAttribute(ryArray, 1));
+            
+            const points = new THREE.Points(geometry, shaderMaterial);
+            scene.add(points);
+            
+            // ==================== 2D АДРЕСНАЯ КАМЕРА ====================
+            function update2DCamera() {
+                if (!state.videoActive || video.paused) return;
+                
+                mainCtx.clearRect(0, 0, mainCameraCanvas.width, mainCameraCanvas.height);
+                
+                const w = mainCameraCanvas.width;
+                const h = mainCameraCanvas.height;
+                
+                if (state.testMode === 'grid') {
+                    mainCtx.fillStyle = '#000';
+                    mainCtx.fillRect(0, 0, w, h);
+                    
+                    mainCtx.strokeStyle = '#00ffff';
+                    mainCtx.lineWidth = 2;
+                    for (let i = 0; i <= 10; i++) {
+                        mainCtx.beginPath();
+                        mainCtx.moveTo(i * w/10, 0);
+                        mainCtx.lineTo(i * w/10, h);
+                        mainCtx.stroke();
+                        
+                        mainCtx.beginPath();
+                        mainCtx.moveTo(0, i * h/10);
+                        mainCtx.lineTo(w, i * h/10);
+                        mainCtx.stroke();
+                    }
+                    
+                    mainCtx.fillStyle = '#ff00ff';
+                    mainCtx.fillRect(w/2 - 5, h/2 - 5, 10, 10);
+                    
+                } else if (state.testMode === 'colors') {
+                    mainCtx.fillStyle = '#ff0000';
+                    mainCtx.fillRect(0, 0, w/3, h);
+                    mainCtx.fillStyle = '#00ff00';
+                    mainCtx.fillRect(w/3, 0, w/3, h);
+                    mainCtx.fillStyle = '#0000ff';
+                    mainCtx.fillRect(2*w/3, 0, w/3, h);
+                    
+                } else {
+                    if (state.projectorMode === '1proj') {
+                        mainCtx.drawImage(video, 0, 0, w, h);
+                        
+                        mainCtx.save();
+                        mainCtx.translate(w - 150, 20);
+                        mainCtx.scale(-1, 1);
+                        mainCtx.drawImage(video, 0, 0, 150, 100);
+                        mainCtx.restore();
+                        
+                        mainCtx.strokeStyle = '#ff00ff';
+                        mainCtx.lineWidth = 2;
+                        mainCtx.strokeRect(w - 150, 20, 150, 100);
+                        mainCtx.fillStyle = '#ff00ff';
+                        mainCtx.font = '10px Courier New';
+                        mainCtx.fillText('ЗЕРКАЛО', w - 100, 15);
+                        
+                    } else {
+                        mainCtx.drawImage(video, 0, 0, w/2, h);
+                        
+                        mainCtx.save();
+                        mainCtx.translate(w, 0);
+                        mainCtx.scale(-1, 1);
+                        mainCtx.drawImage(video, 0, 0, w/2, h);
+                        mainCtx.restore();
+                        
+                        mainCtx.strokeStyle = '#00ffff';
+                        mainCtx.lineWidth = 2;
+                        mainCtx.beginPath();
+                        mainCtx.moveTo(w/2, 0);
+                        mainCtx.lineTo(w/2, h);
+                        mainCtx.stroke();
+                        
+                        mainCtx.fillStyle = '#00ffff';
+                        mainCtx.font = '12px Courier New';
+                        mainCtx.fillText('ОРИГИНАЛ', w/4, 20);
+                        mainCtx.fillText('ЗЕРКАЛО', 3*w/4, 20);
+                    }
+                }
+                
+                mainCtx.fillStyle = '#ffff00';
+                mainCtx.font = '10px Courier New';
+                mainCtx.fillText(`ЧАСТОТА:${state.frequency.toFixed(1)}Гц ФАЗА:${Math.round(state.phase*180/Math.PI)}° АКТИВ:${state.activeSource || 'WEB'}`, 10, 30);
+            }
+            
+            // ==================== УПРАВЛЕНИЕ ====================
+            
+            // НАВИГАЦИЯ
+            navTo3D.onclick = () => {
+                studio3D.classList.add('active');
+                mainPage.style.display = 'none';
+                setTimeout(() => {
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                }, 50);
+            };
+            
+            backToMain.onclick = () => {
+                studio3D.classList.remove('active');
+                mainPage.style.display = 'flex';
+            };
+            
+            // ЗАГРУЗКА ФАЙЛОВ
+            document.getElementById('photoBtn').onclick = () => document.getElementById('photoInput').click();
+            document.getElementById('videoBtn').onclick = () => document.getElementById('videoInput').click();
+            document.getElementById('audioBtn').onclick = () => document.getElementById('audioInput').click();
+            
+            document.getElementById('videoInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const url = URL.createObjectURL(file);
+                video.src = url;
+                video.load();
+                state.videoActive = true;
+                video.play().catch(() => {});
+            });
+            
+            document.getElementById('photoInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 320;
+                        canvas.height = 180;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, 320, 180);
+                        
+                        const photoTexture = new THREE.CanvasTexture(canvas);
+                        shaderMaterial.uniforms.videoTexture.value = photoTexture;
+                        state.videoActive = true;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            });
+            
+            document.getElementById('audioInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const audio = new Audio();
+                audio.src = URL.createObjectURL(file);
+                audio.loop = true;
+                audio.play().catch(() => {});
+                state.audioActive = true;
+            });
+            
+            document.getElementById('playBtn').onclick = () => video.play();
+            document.getElementById('pauseBtn').onclick = () => video.pause();
+            document.getElementById('stopBtn').onclick = () => {
+                video.pause();
+                video.currentTime = 0;
+            };
+            
+            // ==================== WEB CONNECT ====================
+            
+            document.getElementById('usbBtn').onclick = async () => {
+                try {
+                    if (navigator.usb) {
+                        const device = await navigator.usb.requestDevice({ filters: [] });
+                        state.usbConnected = true;
+                        state.activeSource = 'USB';
+                        state.frequency = 48;
+                        
+                        document.getElementById('usbLed').style.boxShadow = '0 0 15px #ff5555';
+                        
+                        shaderMaterial.uniforms.usbActive.value = true;
+                        updateUniforms();
+                        
+                        ygStatus.innerHTML = '⚡ USB ПОДКЛЮЧЁН · КОМАНДИР ⚡';
+                    }
+                } catch (e) {}
+            };
+            
+            document.getElementById('btBtn').onclick = async () => {
+                try {
+                    if (navigator.bluetooth) {
+                        const device = await navigator.bluetooth.requestDevice({
+                            acceptAllDevices: true
+                        });
+                        state.btConnected = true;
+                        state.activeSource = 'BT';
+                        state.frequency = 240;
+                        
+                        document.getElementById('btLed').style.boxShadow = '0 0 15px #5555ff';
+                        
+                        shaderMaterial.uniforms.btActive.value = true;
+                        updateUniforms();
+                        
+                        ygStatus.innerHTML = '📱 BLUETOOTH ПОДКЛЮЧЁН · КОМАНДИР ⚡';
+                    }
+                } catch (e) {}
+            };
+            
+            document.getElementById('printerBtn').onclick = async () => {
+                try {
+                    if (navigator.serial) {
+                        const port = await navigator.serial.requestPort();
+                        state.printerConnected = true;
+                        state.activeSource = 'PRINTER';
+                        state.frequency = 9.6;
+                        
+                        document.getElementById('printerLed').style.boxShadow = '0 0 15px #ffff55';
+                        
+                        shaderMaterial.uniforms.printerActive.value = true;
+                        updateUniforms();
+                        
+                        ygStatus.innerHTML = '🖨️ ПРИНТЕР ПОДКЛЮЧЁН · КОМАНДИР ⚡';
+                    }
+                } catch (e) {}
+            };
+            
+            document.getElementById('scanBtn').onclick = () => {
+                ygStatus.innerHTML = '📡 СКАНИРОВАНИЕ ПОЛЯ...';
+                
+                setTimeout(() => {
+                    const r = Math.random();
+                    if (r < 0.3) {
+                        state.activeSource = 'USB';
+                        state.frequency = 48;
+                    } else if (r < 0.6) {
+                        state.activeSource = 'BT';
+                        state.frequency = 240;
+                    } else {
+                        state.activeSource = 'PRINTER';
+                        state.frequency = 9.6;
+                    }
+                    
+                    updateUniforms();
+                    ygStatus.innerHTML = `📡 НАЙДЕН РЕЗОНАНС: ${state.activeSource}`;
+                }, 1000);
+            };
+            
+            document.getElementById('syncBtn').onclick = () => {
+                state.frequency = 60;
+                state.phase = 0;
+                updateUniforms();
+                ygStatus.innerHTML = '🔄 ПОЛЕ СИНХРОНИЗИРОВАНО';
+            };
+            
+            document.getElementById('resetBtn').onclick = () => {
+                state.usbConnected = false;
+                state.btConnected = false;
+                state.printerConnected = false;
+                state.activeSource = null;
+                state.frequency = 60;
+                state.phase = 0;
+                
+                document.getElementById('usbLed').style.boxShadow = 'none';
+                document.getElementById('btLed').style.boxShadow = 'none';
+                document.getElementById('printerLed').style.boxShadow = 'none';
+                
+                shaderMaterial.uniforms.usbActive.value = false;
+                shaderMaterial.uniforms.btActive.value = false;
+                shaderMaterial.uniforms.printerActive.value = false;
+                
+                updateUniforms();
+                ygStatus.innerHTML = '⚡ WEB CONNECT: ОЖИДАНИЕ ⚡';
+            };
+            
+            document.getElementById('yg300Preset').onclick = () => {
+                state.ygMode = true;
+                state.redBoost = 1.5;
+                state.greenBoost = 1.0;
+                state.blueBoost = 1.8;
+                state.particleSize = 8.0;
+                state.frequency = 60;
+                state.phase = 0;
+                
+                document.getElementById('redSlider').value = 150;
+                document.getElementById('greenSlider').value = 100;
+                document.getElementById('blueSlider').value = 180;
+                document.getElementById('sizeSlider').value = 8;
+                document.getElementById('freqSlider').value = 60;
+                document.getElementById('phaseSlider').value = 0;
+                
+                shaderMaterial.uniforms.redBoost.value = state.redBoost;
+                shaderMaterial.uniforms.greenBoost.value = state.greenBoost;
+                shaderMaterial.uniforms.blueBoost.value = state.blueBoost;
+                shaderMaterial.uniforms.particleSize.value = state.particleSize;
+                
+                updateSlidersDisplay();
+                updateUniforms();
+                ygStatus.innerHTML = '⚡ WEB SYNCHRONIZATION АКТИВИРОВАНА ⚡';
+            };
+            
+            document.getElementById('mode1proj').onclick = () => {
+                state.projectorMode = '1proj';
+                modeIndicator.innerHTML = '📽 РЕЖИМ 1П: ОРИГИНАЛ';
+            };
+            
+            document.getElementById('mode2proj').onclick = () => {
+                state.projectorMode = '2proj';
+                modeIndicator.innerHTML = '🎬 РЕЖИМ 2П: ОРИГИНАЛ + ЗЕРКАЛО';
+            };
+            
+            // СЛАЙДЕРЫ
+            document.getElementById('redSlider').oninput = (e) => {
+                state.redBoost = e.target.value / 100;
+                shaderMaterial.uniforms.redBoost.value = state.redBoost;
+                document.getElementById('redVal').innerHTML = e.target.value + '%';
+            };
+            
+            document.getElementById('greenSlider').oninput = (e) => {
+                state.greenBoost = e.target.value / 100;
+                shaderMaterial.uniforms.greenBoost.value = state.greenBoost;
+                document.getElementById('greenVal').innerHTML = e.target.value + '%';
+            };
+            
+            document.getElementById('blueSlider').oninput = (e) => {
+                state.blueBoost = e.target.value / 100;
+                shaderMaterial.uniforms.blueBoost.value = state.blueBoost;
+                document.getElementById('blueVal').innerHTML = e.target.value + '%';
+            };
+            
+            document.getElementById('sizeSlider').oninput = (e) => {
+                state.particleSize = parseFloat(e.target.value);
+                shaderMaterial.uniforms.particleSize.value = state.particleSize;
+                document.getElementById('sizeVal').innerHTML = state.particleSize.toFixed(1);
+            };
+            
+            document.getElementById('delaySlider').oninput = (e) => {
+                state.syncDelay = parseInt(e.target.value);
+                document.getElementById('delayVal').innerHTML = state.syncDelay;
+            };
+            
+            document.getElementById('freqSlider').oninput = (e) => {
+                state.frequency = parseFloat(e.target.value);
+                document.getElementById('freqVal').innerHTML = state.frequency.toFixed(1);
+                updateUniforms();
+            };
+            
+            document.getElementById('phaseSlider').oninput = (e) => {
+                state.phase = parseFloat(e.target.value) * Math.PI / 180;
+                document.getElementById('phaseVal').innerHTML = e.target.value + '°';
+                updateUniforms();
+            };
+            
+            document.getElementById('testGrid').onclick = () => {
+                if (state.testMode === 'grid') {
+                    state.testMode = 'none';
+                    shaderMaterial.uniforms.testGrid.value = false;
+                } else {
+                    state.testMode = 'grid';
+                    shaderMaterial.uniforms.testGrid.value = true;
+                    shaderMaterial.uniforms.testColors.value = false;
+                }
+            };
+            
+            document.getElementById('testColors').onclick = () => {
+                if (state.testMode === 'colors') {
+                    state.testMode = 'none';
+                    shaderMaterial.uniforms.testColors.value = false;
+                } else {
+                    state.testMode = 'colors';
+                    shaderMaterial.uniforms.testColors.value = true;
+                    shaderMaterial.uniforms.testGrid.value = false;
+                }
+            };
+            
+            function updateSlidersDisplay() {
+                document.getElementById('redVal').innerHTML = Math.round(state.redBoost*100) + '%';
+                document.getElementById('greenVal').innerHTML = Math.round(state.greenBoost*100) + '%';
+                document.getElementById('blueVal').innerHTML = Math.round(state.blueBoost*100) + '%';
+                document.getElementById('sizeVal').innerHTML = state.particleSize.toFixed(1);
+            }
+            
+            function updateUniforms() {
+                shaderMaterial.uniforms.frequency.value = state.frequency;
+                shaderMaterial.uniforms.phase.value = state.phase;
+                
+                document.getElementById('freqVal').innerHTML = state.frequency.toFixed(1);
+                document.getElementById('phaseVal').innerHTML = Math.round(state.phase * 180 / Math.PI) + '°';
+                
+                statsDiv.innerHTML = `⚡ YG-300 · 300k · ${state.frequency.toFixed(1)}Гц · ${state.activeSource || 'WEB'} ⚡`;
+            }
+            
+            // ==================== RESIZE ====================
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                
+                const container = document.getElementById('addressCamera');
+                if (container) {
+                    mainCameraCanvas.width = container.clientWidth;
+                    mainCameraCanvas.height = container.clientHeight;
+                }
+            });
+            
+            setTimeout(() => {
+                const container = document.getElementById('addressCamera');
+                if (container) {
+                    mainCameraCanvas.width = container.clientWidth;
+                    mainCameraCanvas.height = container.clientHeight;
+                }
+            }, 100);
+            
+            // ==================== АНИМАЦИЯ ====================
+            function animate2D() {
+                update2DCamera();
+                requestAnimationFrame(animate2D);
+            }
+            animate2D();
+            
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                controls.update();
+                shaderMaterial.uniforms.time.value = performance.now() / 1000;
+                renderer.render(scene, camera);
+            }
+            animate3D();
+            
+            // СТАРТ
+            setTimeout(() => {
+                document.getElementById('yg300Preset').click();
+                document.getElementById('mode1proj').click();
+            }, 500);
+            
+        })();
+    </script>
+</body>
+</html>
